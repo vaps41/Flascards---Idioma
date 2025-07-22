@@ -21,8 +21,6 @@ O **Flashcards - Idioma** é uma ferramenta de estudo que utiliza o método de r
 ### Pré-requisitos
 
 - Navegador web moderno
-- [Node.js](https://nodejs.org/) (se aplicável)
-- [Outras dependências específicas do seu projeto]
 
 ### Instalação
 
@@ -55,13 +53,7 @@ O **Flashcards - Idioma** é uma ferramenta de estudo que utiliza o método de r
 4. **Continue praticando** - o sistema priorizará as palavras mais difíceis
 
 ## 🛠️ Tecnologias Utilizadas
-
-<!-- Ajuste conforme as tecnologias reais do seu projeto -->
 - **Frontend**: HTML5, CSS3, JavaScript
-- **Frameworks**: [React/Vue/Angular - se aplicável]
-- **Styling**: [CSS/SCSS/Tailwind - se aplicável]
-- **Armazenamento**: LocalStorage/IndexedDB
-- **Build**: [Webpack/Vite - se aplicável]
 
 ## 📁 Estrutura do Projeto
 
@@ -109,14 +101,6 @@ Contribuições são sempre bem-vindas! Para contribuir:
 - [ ] Sistema de conquistas/gamificação
 - [ ] Exportação de progresso
 - [ ] Modo offline completo
-
-## 🤝 Suporte
-
-Se você encontrar algum problema ou tiver sugestões:
-
-- 📧 **Email**: [seu-email@exemplo.com]
-- 🐛 **Issues**: [Reporte bugs aqui](https://github.com/vaps41/Flascards---Idioma/issues)
-- 💬 **Discussions**: [Tire dúvidas aqui](https://github.com/vaps41/Flascards---Idioma/discussions)
 
 ## 📄 Licença
 
