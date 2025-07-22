@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards Multilíngue - Aprenda Idiomas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Language Selection Screen */
+        .language-selection {
+            display: block;
+        }
+
+        .languages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .language-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+        }
+
+        .language-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .language-flag {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .language-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .language-info {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+
+        /* Game Screen */
+        .game-screen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .current-language {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            height: 20px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .flashcard {
+            width: 450px;
+            height: 280px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .card-content {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+        }
+
+        .card-pronunciation {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .card-type {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .card-counter {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .completion-message {
+            background: rgba(46, 204, 113, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .completion-message h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .completion-stats {
+            margin: 20px 0;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .flashcard {
+                width: 350px;
+                height: 220px;
+            }
+            
+            .card-content {
+                font-size: 1.8rem;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .languages-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .flashcard {
+                width: 300px;
+                height: 200px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Language Selection Screen -->
+        <div class="language-selection" id="languageSelection">
+            <div class="header">
+                <h1>🌍 Flashcards Multilíngue</h1>
+                <p>Escolha o idioma que deseja praticar</p>
+            </div>
+
+            <div class="languages-grid">
+                <div class="language-card" onclick="selectLanguage('french')">
+                    <span class="language-flag">🇫🇷</span>
+                    <div class="language-name">Francês</div>
+                    <div class="language-info">20 flashcards • Vocabulário essencial</div>
+                </div>
+
+                <div class="language-card" onclick="selectLanguage('english')">
+                    <span class="language-flag">🇺🇸</span>
+                    <div class="language-name">Inglês</div>
+                    <div class="language-info">20 flashcards • Palavras fundamentais</div>
+                </div>
+
+                <div class="language-card" onclick="selectLanguage('spanish')">
+                    <span class="language-flag">🇪🇸</span>
+                    <div class="language-name">Espanhol</div>
+                    <div class="language-info">20 flashcards • Expressões básicas</div>
+                </div>
+
+                <div class="language-card" onclick="selectLanguage('german')">
+                    <span class="language-flag">🇩🇪</span>
+                    <div class="language-name">Alemão</div>
+                    <div class="language-info">50 flashcards • Vocabulário completo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <button class="back-btn" onclick="goBack()">← Voltar</button>
+                <div class="current-language" id="currentLanguage"></div>
+            </div>
+
+            <div class="progress-container">
+                <h3>Seu Progresso</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-number" id="correctCount">0</span>
+                        <span>Corretas</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="totalCount">0</span>
+                        <span>Respondidas</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="accuracyRate">0%</span>
+                        <span>Precisão</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="remainingCount">0</span>
+                        <span>Restantes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-counter" id="cardCounter">
+                Carta 1 de 20
+            </div>
+
+            <div class="card-container">
+                <div class="flashcard" id="flashcard">
+                    <div class="card-face card-front">
+                        <div>
+                            <div class="card-content" id="frontContent"></div>
+                            <div class="card-pronunciation" id="frontPronunciation"></div>
+                            <div class="card-type" id="frontType"></div>
+                        </div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div>
+                            <div class="card-content" id="backContent"></div>
+                            <div class="card-type">Português</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="flipBtn">Virar Carta</button>
+                <button class="btn btn-success" id="correctBtn" disabled>✓ Acertei</button>
+                <button class="btn btn-danger" id="wrongBtn" disabled>✗ Errei</button>
+            </div>
+
+
+
+            <div class="completion-message" id="completionMessage" style="display: none;">
+                <h2>🎉 Parabéns!</h2>
+                <p>Você completou todas as cartas!</p>
+                <div class="completion-stats" id="completionStats"></div>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="restartGame()">Recomeçar</button>
+                    <button class="btn btn-primary" onclick="goBack()">Escolher Outro Idioma</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const flashcardsData = {
+            french: [
+                { word: "Bonjour", pronunciation: "[bon-ZHOOR]", translation: "Bom dia", type: "Cumprimento" },
+                { word: "Merci", pronunciation: "[mer-SEE]", translation: "Obrigado", type: "Cortesia" },
+                { word: "Au revoir", pronunciation: "[oh ruh-VWAHR]", translation: "Tchau", type: "Despedida" },
+                { word: "S'il vous plaît", pronunciation: "[see voo PLEH]", translation: "Por favor", type: "Cortesia" },
+                { word: "Excusez-moi", pronunciation: "[ek-skew-zay MWAH]", translation: "Com licença", type: "Cortesia" },
+                { word: "Oui", pronunciation: "[WEE]", translation: "Sim", type: "Resposta" },
+                { word: "Non", pronunciation: "[NOHN]", translation: "Não", type: "Resposta" },
+                { word: "Comment allez-vous?", pronunciation: "[koh-mahn tah-lay VOO]", translation: "Como vai?", type: "Pergunta" },
+                { word: "Je ne comprends pas", pronunciation: "[zhuh nuh kom-prahn PAH]", translation: "Não entendo", type: "Expressão" },
+                { word: "Parlez-vous anglais?", pronunciation: "[par-lay voo ahn-GLEH]", translation: "Você fala inglês?", type: "Pergunta" },
+                { word: "Eau", pronunciation: "[OH]", translation: "Água", type: "Substantivo" },
+                { word: "Pain", pronunciation: "[PAHN]", translation: "Pão", type: "Substantivo" },
+                { word: "Maison", pronunciation: "[meh-ZOHN]", translation: "Casa", type: "Substantivo" },
+                { word: "Voiture", pronunciation: "[vwah-TOOR]", translation: "Carro", type: "Substantivo" },
+                { word: "Chien", pronunciation: "[SHEE-ahn]", translation: "Cachorro", type: "Substantivo" },
+                { word: "Chat", pronunciation: "[SHAH]", translation: "Gato", type: "Substantivo" },
+                { word: "Rouge", pronunciation: "[ROOZH]", translation: "Vermelho", type: "Cor" },
+                { word: "Bleu", pronunciation: "[BLUH]", translation: "Azul", type: "Cor" },
+                { word: "Grand", pronunciation: "[GRAHN]", translation: "Grande", type: "Adjetivo" },
+                { word: "Petit", pronunciation: "[puh-TEE]", translation: "Pequeno", type: "Adjetivo" }
+            ],
+            english: [
+                { word: "Hello", pronunciation: "[HEH-loh]", translation: "Olá", type: "Greeting" },
+                { word: "Thank you", pronunciation: "[THANK yoo]", translation: "Obrigado", type: "Courtesy" },
+                { word: "Goodbye", pronunciation: "[good-BYE]", translation: "Tchau", type: "Farewell" },
+                { word: "Please", pronunciation: "[PLEEZ]", translation: "Por favor", type: "Courtesy" },
+                { word: "Excuse me", pronunciation: "[ik-SKYOOZ mee]", translation: "Com licença", type: "Courtesy" },
+                { word: "Yes", pronunciation: "[YES]", translation: "Sim", type: "Response" },
+                { word: "No", pronunciation: "[NOH]", translation: "Não", type: "Response" },
+                { word: "How are you?", pronunciation: "[HOW ar yoo]", translation: "Como vai?", type: "Question" },
+                { word: "I don't understand", pronunciation: "[AY dohnt un-der-STAND]", translation: "Não entendo", type: "Expression" },
+                { word: "Do you speak Portuguese?", pronunciation: "[doo yoo SPEEK por-chuh-GEEZ]", translation: "Você fala português?", type: "Question" },
+                { word: "Water", pronunciation: "[WAH-ter]", translation: "Água", type: "Noun" },
+                { word: "Bread", pronunciation: "[BRED]", translation: "Pão", type: "Noun" },
+                { word: "House", pronunciation: "[HOWS]", translation: "Casa", type: "Noun" },
+                { word: "Car", pronunciation: "[KAR]", translation: "Carro", type: "Noun" },
+                { word: "Dog", pronunciation: "[DAWG]", translation: "Cachorro", type: "Noun" },
+                { word: "Cat", pronunciation: "[KAT]", translation: "Gato", type: "Noun" },
+                { word: "Red", pronunciation: "[RED]", translation: "Vermelho", type: "Color" },
+                { word: "Blue", pronunciation: "[BLOO]", translation: "Azul", type: "Color" },
+                { word: "Big", pronunciation: "[BIG]", translation: "Grande", type: "Adjective" },
+                { word: "Small", pronunciation: "[SMAWL]", translation: "Pequeno", type: "Adjective" }
+            ],
+            spanish: [
+                { word: "Hola", pronunciation: "[OH-lah]", translation: "Olá", type: "Saludo" },
+                { word: "Gracias", pronunciation: "[GRAH-see-ahs]", translation: "Obrigado", type: "Cortesía" },
+                { word: "Adiós", pronunciation: "[ah-DYOHS]", translation: "Tchau", type: "Despedida" },
+                { word: "Por favor", pronunciation: "[por fah-VOR]", translation: "Por favor", type: "Cortesía" },
+                { word: "Perdón", pronunciation: "[per-DOHN]", translation: "Desculpa", type: "Cortesía" },
+                { word: "Sí", pronunciation: "[SEE]", translation: "Sim", type: "Respuesta" },
+                { word: "No", pronunciation: "[NOH]", translation: "Não", type: "Respuesta" },
+                { word: "¿Cómo estás?", pronunciation: "[KOH-moh es-TAHS]", translation: "Como está?", type: "Pregunta" },
+                { word: "No entiendo", pronunciation: "[noh en-TYEN-doh]", translation: "Não entendo", type: "Expresión" },
+                { word: "¿Hablas inglés?", pronunciation: "[AH-blahs in-GLEYS]", translation: "Você fala inglês?", type: "Pregunta" },
+                { word: "Agua", pronunciation: "[AH-gwah]", translation: "Água", type: "Sustantivo" },
+                { word: "Pan", pronunciation: "[PAHN]", translation: "Pão", type: "Sustantivo" },
+                { word: "Casa", pronunciation: "[KAH-sah]", translation: "Casa", type: "Sustantivo" },
+                { word: "Coche", pronunciation: "[KOH-cheh]", translation: "Carro", type: "Sustantivo" },
+                { word: "Perro", pronunciation: "[PEH-rroh]", translation: "Cachorro", type: "Sustantivo" },
+                { word: "Gato", pronunciation: "[GAH-toh]", translation: "Gato", type: "Sustantivo" },
+                { word: "Rojo", pronunciation: "[ROH-hoh]", translation: "Vermelho", type: "Color" },
+                { word: "Azul", pronunciation: "[ah-SOOL]", translation: "Azul", type: "Color" },
+                { word: "Grande", pronunciation: "[GRAHN-deh]", translation: "Grande", type: "Adjetivo" },
+                { word: "Pequeño", pronunciation: "[peh-KEH-nyoh]", translation: "Pequeno", type: "Adjetivo" }
+            ],
+            german: [
+                { word: "Hallo", pronunciation: "[HAH-loh]", translation: "Olá", type: "Begrüßung" },
+                { word: "Danke", pronunciation: "[DAHN-keh]", translation: "Obrigado", type: "Höflichkeit" },
+                { word: "Auf Wiedersehen", pronunciation: "[owf VEE-der-zayn]", translation: "Tchau", type: "Abschied" },
+                { word: "Bitte", pronunciation: "[BIT-teh]", translation: "Por favor", type: "Höflichkeit" },
+                { word: "Entschuldigung", pronunciation: "[ent-SHOOL-di-goong]", translation: "Desculpa", type: "Höflichkeit" },
+                { word: "Ja", pronunciation: "[YAH]", translation: "Sim", type: "Antwort" },
+                { word: "Nein", pronunciation: "[NINE]", translation: "Não", type: "Antwort" },
+                { word: "Wie geht's?", pronunciation: "[vee GAYTS]", translation: "Como vai?", type: "Frage" },
+                { word: "Ich verstehe nicht", pronunciation: "[ikh fer-SHTAY-eh nikht]", translation: "Não entendo", type: "Ausdruck" },
+                { word: "Sprechen Sie Englisch?", pronunciation: "[SHPREH-khen zee ENG-lish]", translation: "Você fala inglês?", type: "Frage" },
+                { word: "Wasser", pronunciation: "[VAH-ser]", translation: "Água", type: "Substantiv" },
+                { word: "Brot", pronunciation: "[BROHT]", translation: "Pão", type: "Substantiv" },
+                { word: "Haus", pronunciation: "[HOWS]", translation: "Casa", type: "Substantiv" },
+                { word: "Auto", pronunciation: "[OW-toh]", translation: "Carro", type: "Substantiv" },
+                { word: "Hund", pronunciation: "[HOONT]", translation: "Cachorro", type: "Substantiv" },
+                { word: "Katze", pronunciation: "[KAH-tseh]", translation: "Gato", type: "Substantiv" },
+                { word: "Rot", pronunciation: "[ROHT]", translation: "Vermelho", type: "Farbe" },
+                { word: "Blau", pronunciation: "[BLOW]", translation: "Azul", type: "Farbe" },
+                { word: "Groß", pronunciation: "[GROHS]", translation: "Grande", type: "Adjektiv" },
+                { word: "Klein", pronunciation: "[KLINE]", translation: "Pequeno", type: "Adjektiv" },
+                { word: "Guten Morgen", pronunciation: "[GOO-ten MOR-gen]", translation: "Bom dia", type: "Begrüßung" },
+                { word: "Guten Abend", pronunciation: "[GOO-ten AH-bent]", translation: "Boa noite", type: "Begrüßung" },
+                { word: "Wie heißen Sie?", pronunciation: "[vee HIGH-sen zee]", translation: "Qual é seu nome?", type: "Frage" },
+                { word: "Mein Name ist...", pronunciation: "[mine NAH-meh ist]", translation: "Meu nome é...", type: "Ausdruck" },
+                { word: "Wo ist...?", pronunciation: "[voh ist]", translation: "Onde está...?", type: "Frage" },
+                { word: "Bahnhof", pronunciation: "[BAHN-hohf]", translation: "Estação de trem", type: "Substantiv" },
+                { word: "Restaurant", pronunciation: "[res-tow-RAHNT]", translation: "Restaurante", type: "Substantiv" },
+                { word: "Hotel", pronunciation: "[ho-TEL]", translation: "Hotel", type: "Substantiv" },
+                { word: "Flughafen", pronunciation: "[FLOOK-hah-fen]", translation: "Aeroporto", type: "Substantiv" },
+                { word: "Krankenhaus", pronunciation: "[KRAHN-ken-hows]", translation: "Hospital", type: "Substantiv" },
+                { word: "Schule", pronunciation: "[SHOO-leh]", translation: "Escola", type: "Substantiv" },
+                { word: "Arbeit", pronunciation: "[AR-bite]", translation: "Trabalho", type: "Substantiv" },
+                { word: "Familie", pronunciation: "[fah-MEE-lee-eh]", translation: "Família", type: "Substantiv" },
+                { word: "Freund", pronunciation: "[FROYNT]", translation: "Amigo", type: "Substantiv" },
+                { word: "Zeit", pronunciation: "[TSITE]", translation: "Tempo", type: "Substantiv" },
+                { word: "Geld", pronunciation: "[GELT]", translation: "Dinheiro", type: "Substantiv" },
+                { word: "Essen", pronunciation: "[ES-sen]", translation: "Comida", type: "Substantiv" },
+                { word: "Trinken", pronunciation: "[TRIN-ken]", translation: "Beber", type: "Verb" },
+                { word: "Schlafen", pronunciation: "[SHLAH-fen]", translation: "Dormir", type: "Verb" },
+                { word: "Arbeiten", pronunciation: "[AR-bye-ten]", translation: "Trabalhar", type: "Verb" },
+                { word: "Lernen", pronunciation: "[LER-nen]", translation: "Aprender", type: "Verb" },
+                { word: "Sprechen", pronunciation: "[SHPREH-khen]", translation: "Falar", type: "Verb" },
+                { word: "Hören", pronunciation: "[HUR-en]", translation: "Ouvir", type: "Verb" },
+                { word: "Sehen", pronunciation: "[ZAY-en]", translation: "Ver", type: "Verb" },
+                { word: "Gehen", pronunciation: "[GAY-en]", translation: "Ir", type: "Verb" },
+                { word: "Kommen", pronunciation: "[KOM-men]", translation: "Vir", type: "Verb" },
+                { word: "Haben", pronunciation: "[HAH-ben]", translation: "Ter", type: "Verb" },
+                { word: "Sein", pronunciation: "[ZINE]", translation: "Ser/Estar", type: "Verb" },
+                { word: "Machen", pronunciation: "[MAH-khen]", translation: "Fazer", type: "Verb" },
+                { word: "Wissen", pronunciation: "[VIS-sen]", translation: "Saber", type: "Verb" },
+                { word: "Können", pronunciation: "[KUR-nen]", translation: "Poder", type: "Verb" }
+            ]
+        };
+
+        let currentLanguage = '';
+        let currentCards = [];
+        let currentCardIndex = 0;
+        let correctAnswers = 0;
+        let totalAnswers = 0;
+        let isFlipped = false;
+
+        const languageSelection = document.getElementById('languageSelection');
+        const gameScreen = document.getElementById('gameScreen');
+        const currentLanguageDisplay = document.getElementById('currentLanguage');
+        const flashcard = document.getElementById('flashcard');
+        const frontContent = document.getElementById('frontContent');
+        const frontPronunciation = document.getElementById('frontPronunciation');
+        const frontType = document.getElementById('frontType');
+        const backContent = document.getElementById('backContent');
+        const flipBtn = document.getElementById('flipBtn');
+        const correctBtn = document.getElementById('correctBtn');
+        const wrongBtn = document.getElementById('wrongBtn');
+
+        const cardCounter = document.getElementById('cardCounter');
+        const progressFill = document.getElementById('progressFill');
+        const correctCount = document.getElementById('correctCount');
+        const totalCount = document.getElementById('totalCount');
+        const accuracyRate = document.getElementById('accuracyRate');
+        const remainingCount = document.getElementById('remainingCount');
+        const completionMessage = document.getElementById('completionMessage');
+        const completionStats = document.getElementById('completionStats');
+
+        function selectLanguage(language) {
+            currentLanguage = language;
+            currentCards = [...flashcardsData[language]];
+            
+            // Shuffle cards for random order
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            
+            currentCardIndex = 0;
+            correctAnswers = 0;
+            totalAnswers = 0;
+            
+            const languageNames = {
+                french: '🇫🇷 Francês',
+                english: '🇺🇸 Inglês', 
+                spanish: '🇪🇸 Espanhol',
+                german: '🇩🇪 Alemão'
+            };
+            
+            currentLanguageDisplay.textContent = languageNames[language];
+            
+            languageSelection.style.display = 'none';
+            gameScreen.style.display = 'block';
+            completionMessage.style.display = 'none';
+            
+            loadCard();
+            updateProgress();
+        }
+
+        function loadCard() {
+            const card = currentCards[currentCardIndex];
+            frontContent.textContent = card.word;
+            frontPronunciation.textContent = card.pronunciation;
+            frontType.textContent = card.type;
+            backContent.textContent = card.translation;
+            
+            cardCounter.textContent = `Carta ${currentCardIndex + 1} de ${currentCards.length}`;
+            
+            // Reset card state
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+            flipBtn.disabled = false;
+            correctBtn.disabled = true;
+            wrongBtn.disabled = true;
+        }
+
+        function flipCard() {
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+            
+            if (isFlipped) {
+                flipBtn.disabled = true;
+                correctBtn.disabled = false;
+                wrongBtn.disabled = false;
+            }
+        }
+
+        function handleAnswer(isCorrect) {
+            totalAnswers++;
+            if (isCorrect) {
+                correctAnswers++;
+            }
+            
+            updateProgress();
+            
+            correctBtn.disabled = true;
+            wrongBtn.disabled = true;
+            
+            // Auto advance to next card after a short delay
+            setTimeout(() => {
+                if (currentCardIndex < currentCards.length - 1) {
+                    nextCard();
+                } else {
+                    showCompletion();
+                }
+            }, 800);
+        }
+
+        function nextCard() {
+            currentCardIndex++;
+            if (currentCardIndex < currentCards.length) {
+                loadCard();
+                nextBtn.disabled = true;
+            }
+        }
+
+        function updateProgress() {
+            const progress = (totalAnswers / currentCards.length) * 100;
+            progressFill.style.width = progress + '%';
+            
+            correctCount.textContent = correctAnswers;
+            totalCount.textContent = totalAnswers;
+            remainingCount.textContent = currentCards.length - totalAnswers;
+            
+            const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+            accuracyRate.textContent = accuracy + '%';
+        }
+
+        function showCompletion() {
+            const accuracy = Math.round((correctAnswers / totalAnswers) * 100);
+            completionStats.innerHTML = `
+                <strong>Estatísticas Finais:</strong><br>
+                Acertos: ${correctAnswers}/${totalAnswers}<br>
+                Precisão: ${accuracy}%<br>
+                ${accuracy >= 80 ? '🌟 Excelente trabalho!' : accuracy >= 60 ? '👍 Bom trabalho!' : '💪 Continue praticando!'}
+            `;
+            completionMessage.style.display = 'block';
+        }
+
+        function restartGame() {
+            selectLanguage(currentLanguage);
+        }
+
+        function goBack() {
+            languageSelection.style.display = 'block';
+            gameScreen.style.display = 'none';
+        }
+
+        // Event listeners
+        flipBtn.addEventListener('click', flipCard);
+        flashcard.addEventListener('click', () => {
+            if (!isFlipped && !flipBtn.disabled) {
+                flipCard();
+            }
+        });
+        correctBtn.addEventListener('click', () => handleAnswer(true));
+        wrongBtn.addEventListener('click', () => handleAnswer(false));
+
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962f31be9713ae57',t:'MTc1MzE0ODA1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
